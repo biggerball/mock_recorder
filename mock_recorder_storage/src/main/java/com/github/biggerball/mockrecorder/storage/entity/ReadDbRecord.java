@@ -21,10 +21,11 @@ public class ReadDbRecord {
         int index = className.indexOf("|");
         if (index > 0) {
             this.className = className.substring(0, index);
-            this.methodName = className.substring(index + 1);
+            this.interfaces = className.substring(index + 1);
         } else {
             this.className = className;
         }
+        this.methodName = paramRecord.getMethodName();
         this.paramInfo = paramRecord.getParamInfo();
         this.createTime = DateFormatUtils.format(new Date(paramRecord.getCreateTime()), "yyyy-MM-dd HH:mm:ss");
     }

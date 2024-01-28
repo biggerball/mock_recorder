@@ -79,6 +79,7 @@ public class SqliteDbHandler extends DbHandler implements InitializingBean {
                     throw new RuntimeException(String.format("sqlite dir %s create fail", dbFile.getAbsolutePath()));
                 }
             }
+            crateConfigFile(dbFile.getParentFile().getPath());
         } else {
             throw new RuntimeException("sqlite url format error, should be like 'jdbc:sqlite:/data/db/test.db'");
         }

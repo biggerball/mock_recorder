@@ -19,6 +19,9 @@ public class GlobalConfig {
     private static boolean console = false;
 
     public static void initGlobalConfig(String args) {
+        if (StringUtils.isEmpty(args)) {
+            return;
+        }
         for (String arg : args.split(",")) {
             if (StringUtils.isEmpty(arg)) {
                 continue;
@@ -40,9 +43,11 @@ public class GlobalConfig {
         }
     }
 
-    public static List<Pair<String, String>> readPatternFromFile() {
-        File configFile = new File(configPath + "pattern");
+    public static List<Pair<String, String>> readPatternFromFile(String patternName) {
+        String fileName = configPath + patternName;
+        File configFile = new File(fileName);
         if (!configFile.exists()) {
+            System.out.println("pattern file " + fileName + " not found");
             return new ArrayList<>();
         }
         Path path = Paths.get(configFile.toURI());

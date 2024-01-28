@@ -18,7 +18,9 @@ public class SpyImpl {
 
     protected static final String traceId = UUID.randomUUID().toString();
 
-    private static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 
 
     public static void atEnter(Class<?> clazz, String methodInfo, Object target, Object[] args) {
@@ -34,42 +36,49 @@ public class SpyImpl {
                 methodName,
                 System.currentTimeMillis()
         );
-        for (Object arg : args) {
-            if (arg == null) {
-                invokeRecord.addParameter("null", "-");
-            } else {
-                invokeRecord.addParameter(arg.getClass().getName(), gson.toJson(arg));
+        try {
+            for (Object arg : args) {
+                if (arg == null) {
+                    invokeRecord.addParameter("null", "-");
+                } else {
+                    invokeRecord.addParameter(arg.getClass().getName(), gson.toJson(arg));
+                }
             }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         invokeRecords.push(invokeRecord);
-        System.out.println("atEnter");
     }
 
-    public static void atExit(Class<?> clazz, String methodInfo, Object target, Object[] args, Object returnObject) {
+    public static void atExit(Object returnObject) {
         Optional<InvokeRecord> recordOptional = getInvokeRecord();
         if (!recordOptional.isPresent()) {
             return;
         }
         InvokeRecord invokeRecord = recordOptional.get();
-        if (returnObject != null) {
-            invokeRecord.addReturnValue(returnObject.getClass().getName(), gson.toJson(returnObject));
-        } else {
-            invokeRecord.addReturnValue("null", "-");
+        try {
+            if (returnObject != null) {
+                invokeRecord.addReturnValue(returnObject.getClass().getName(), gson.toJson(returnObject));
+            } else {
+                invokeRecord.addReturnValue("null", "-");
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         HttpSender.send(gson.toJson(invokeRecord));
     }
 
 
-    public static void atExceptionExit(Class<?> clazz, String methodInfo, Object target, Object[] args, Throwable throwable) {
+    public static void atExceptionExit(Throwable throwable) {
         Optional<InvokeRecord> recordOptional = getInvokeRecord();
         if (!recordOptional.isPresent()) {
             return;
         }
         InvokeRecord invokeRecord = recordOptional.get();
-        if (throwable != null) {
+        try {
             invokeRecord.addException(throwable.getClass().getName(), gson.toJson(throwable));
-        } else {
-            invokeRecord.addException("null", "-");
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         HttpSender.send(gson.toJson(invokeRecord));
     }

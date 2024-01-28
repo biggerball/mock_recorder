@@ -23,6 +23,9 @@ export default {
         title: 'ClassName',
         dataIndex: 'className'
       }, {
+        title: 'Interfaces',
+        dataIndex: 'interfaces'
+      }, {
         title: 'MethodName',
         dataIndex: 'methodName'
       }, {

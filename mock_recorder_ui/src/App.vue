@@ -56,8 +56,12 @@ export default {
       for (let item of paramInfo.requestParams) {
         recordContent.push(this.parseParam(item, "Parameter" + i, i++))
       }
-      recordContent.push(this.parseParam(paramInfo.exception, "Exception", i++))
-      recordContent.push(this.parseParam(paramInfo.returnValue, "ReturnValue", i++))
+      if (paramInfo.returnValue != null) {
+        recordContent.push(this.parseParam(paramInfo.returnValue, "ReturnValue", i++))
+      }
+      if (paramInfo.exception != null) {
+        recordContent.push(this.parseParam(paramInfo.exception, "Exception", i++))
+      }
       this.recordContent = recordContent
       console.log(this.recordContent)
     },
@@ -84,7 +88,10 @@ export default {
   justify-content: space-between;  
 }  
   
-.left-div, .right-div {  
-  flex-basis: 50%;  
+.left-div {  
+  flex-basis: 60%;  
+}  
+.right-div {  
+  flex-basis: 40%;  
 }  
 </style>

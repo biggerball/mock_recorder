@@ -22,9 +22,11 @@ import java.util.Optional;
 public class Enhancer implements ClassFileTransformer {
 
     List<NameMatcher> nameMatchers;
+    List<NameMatcher> ignoreMatchers;
 
-    public Enhancer(List<NameMatcher> nameMatchers) {
+    public Enhancer(List<NameMatcher> nameMatchers, List<NameMatcher> ignoreMatchers) {
         this.nameMatchers = nameMatchers;
+        this.ignoreMatchers = ignoreMatchers;
     }
 
     @Override
@@ -36,15 +38,19 @@ public class Enhancer implements ClassFileTransformer {
             classNode = AsmUtils.removeJSRInstructions(classNode);
 
             //match type
-            Optional<NameMatcher> nameMatcher = classNameMatch(classNode.name, classNode.interfaces);
+            Optional<NameMatcher> nameMatcher = classNameMatch(classNode.name, classNode.interfaces, this.nameMatchers);
             if (!nameMatcher.isPresent()) {
                 return null;
             }
+            Optional<NameMatcher> ignoreMatcher = classNameMatch(classNode.name, classNode.interfaces, this.ignoreMatchers);
+
+
+
             System.out.printf("className:%s classes: %s, super: %s\n", className, classNode.interfaces, classNode.superName);
             //match method
             List<MethodNode> matchedMethods = new ArrayList<MethodNode>();
             for (MethodNode methodNode : classNode.methods) {
-                if (!isIgnore(methodNode, nameMatcher.get())) {
+                if (!isIgnore(methodNode, nameMatcher.get(), ignoreMatcher.orElse(null))) {
                     matchedMethods.add(methodNode);
                 }
             }
@@ -104,8 +110,8 @@ public class Enhancer implements ClassFileTransformer {
         }
     }
 
-    private Optional<NameMatcher> classNameMatch(String className, List<String> interfaces) {
-        for (NameMatcher nameMatcher : this.nameMatchers) {
+    private Optional<NameMatcher> classNameMatch(String className, List<String> interfaces, List<NameMatcher> matchers) {
+        for (NameMatcher nameMatcher : matchers) {
             if (nameMatcher.matchClass(className)) {
                 return Optional.of(nameMatcher);
             }
@@ -128,15 +134,16 @@ public class Enhancer implements ClassFileTransformer {
     /**
      * 是否需要忽略
      */
-    private boolean isIgnore(MethodNode methodNode, NameMatcher methodNameMatcher) {
-        return null == methodNode || isAbstract(methodNode.access) || !methodNameMatcher.matchMethod(methodNode.name)
-                || ArthasCheckUtils.isEquals(methodNode.name, "<clinit>");
-    }
-
-    private boolean methodNameMatch(MethodNode methodNode) {
-        if ((methodNode.access & Opcodes.ACC_ABSTRACT) != 0) {
-            return false;
+    private boolean isIgnore(MethodNode methodNode, NameMatcher methodNameMatcher, NameMatcher ignoreMatcher) {
+        if (null == methodNode || null == methodNode.name || isAbstract(methodNode.access)) {
+            return true;
         }
-        return true;
+        if (ignoreMatcher != null && ignoreMatcher.matchMethod(methodNode.name)) {
+            return true;
+        }
+        if (methodNode.name.equals("<clinit>") || methodNode.name.equals("<init>") || methodNode.name.contains("CGLIB$")) {
+            return true;
+        }
+        return !methodNameMatcher.matchMethod(methodNode.name);
     }
 }

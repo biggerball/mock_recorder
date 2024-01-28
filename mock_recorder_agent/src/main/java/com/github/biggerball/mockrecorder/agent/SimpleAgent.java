@@ -14,11 +14,15 @@ public class SimpleAgent {
     public static void premain(String agentArgs, Instrumentation inst) {
         GlobalConfig.initGlobalConfig(agentArgs);
 
-        List<Pair<String, String>> patterns = GlobalConfig.readPatternFromFile();
-        if (patterns.isEmpty()) {
+        List<Pair<String, String>> matchPatterns = GlobalConfig.readPatternFromFile("pattern_match");
+        if (matchPatterns.isEmpty()) {
+            System.out.println("not found match pattern, agent fail");
             return;
         }
-        List<NameMatcher> nameMatchers = patterns.stream().map(o -> new NameMatcher(o.getFirst(), o.getSecond())).collect(Collectors.toList());
-        inst.addTransformer(new Enhancer(nameMatchers));
+        List<Pair<String, String>> ignorePatterns = GlobalConfig.readPatternFromFile("pattern_ignore");
+        List<NameMatcher> nameMatchers = matchPatterns.stream().map(o -> new NameMatcher(o.getFirst(), o.getSecond())).collect(Collectors.toList());
+        List<NameMatcher> ignoreMatchers = ignorePatterns.stream().map(o -> new NameMatcher(o.getFirst(), o.getSecond())).collect(Collectors.toList());
+
+        inst.addTransformer(new Enhancer(nameMatchers, ignoreMatchers));
     }
 }
