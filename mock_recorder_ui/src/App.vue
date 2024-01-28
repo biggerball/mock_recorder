@@ -70,6 +70,7 @@ export default {
         "id": i,
         "type": param.type,
         "content": param.value,
+        "htmlShow": param.value.replace(/\n/g, '<br>'),
         "desc": desc
       }
     }

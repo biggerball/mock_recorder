@@ -1,12 +1,12 @@
 <template>
-  <a-collapse v-model:activeKey="activeKey" accordion>
+  <a-collapse v-model:activeKey="activeKey">
     <a-collapse-panel v-for="item in recordContent" :key="String(item.id)" :header="item.desc + ': ' + item.type">
       <div>
         <div class="button">
           <a-button @click="onDownload(item)">Download</a-button>
         </div>
         <a-divider>Json Data</a-divider>
-        <p>{{ item.content }}</p>
+        <p v-html="item.htmlShow"></p>
       </div>
     </a-collapse-panel>
   </a-collapse>

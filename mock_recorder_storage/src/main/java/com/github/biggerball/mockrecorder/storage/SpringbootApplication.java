@@ -2,9 +2,11 @@ package com.github.biggerball.mockrecorder.storage;
 
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,6 +20,9 @@ import java.util.function.Function;
 @SpringBootApplication
 public class SpringbootApplication extends SpringBootServletInitializer {
 
+    @Value("${server.port}")
+    String port;
+
     public static void main(String[] args) {//--spring.datasource.url=jdbc:sqlite:/data/db1/test.db
         if (args != null) {
             List<String> appArgs = new ArrayList<>();
@@ -26,7 +31,9 @@ public class SpringbootApplication extends SpringBootServletInitializer {
             }
             args = appArgs.toArray(new String[]{});
         }
-        SpringApplication.run(SpringbootApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(SpringbootApplication.class, args);
+        String port = context.getEnvironment().getProperty("server.port");
+        System.out.println("mock recorder start, open http://localhost:" + port + " in brower");
     }
 
 
