@@ -5,13 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.biggerball</groupId>
-    <artifactId>param_recorder</artifactId>
+    <artifactId>mock_recorder</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>param_recorder_storage</module>
-        <module>param_recorder_common</module>
-        <module>param_recorder_agent</module>
+        <module>mock_recorder_storage</module>
+        <module>mock_recorder_agent</module>
     </modules>
 
     <parent>
